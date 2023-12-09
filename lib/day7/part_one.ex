@@ -1,21 +1,4 @@
 defmodule Day7.PartOne do
-  @ranks %{
-    "A" => 14,
-    "K" => 13,
-    "Q" => 12,
-    "J" => 11,
-    "T" => 10,
-    "9" => 9,
-    "8" => 8,
-    "7" => 7,
-    "6" => 6,
-    "5" => 5,
-    "4" => 4,
-    "3" => 3,
-    "2" => 2,
-    "1" => 1
-  }
-
   @high 1
   @one_pair 2
   @two_pair 3
@@ -28,12 +11,19 @@ defmodule Day7.PartOne do
     map =
       input
       |> Helpers.parse()
+      |> convert_faces()
       |> create_map()
 
     map
     |> Map.keys()
     |> Enum.group_by(&determine_hand_score/1)
-    |> Enum.reduce()
+    |> Enum.reduce([], fn {_, v}, acc ->
+      acc ++ Enum.sort(v)
+    end)
+    |> Enum.with_index(fn e, i -> {e, i + 1} end)
+    |> Enum.reduce(0, fn {key, rank}, acc ->
+      acc + Map.get(map, key) * rank
+    end)
   end
 
   defp create_map(parsed_input) do
@@ -43,6 +33,17 @@ defmodule Day7.PartOne do
       {num, _} = Integer.parse(str_val)
 
       Map.put(acc, key, num)
+    end)
+  end
+
+  defp convert_faces(input) do
+    Enum.map(input, fn str ->
+      str
+      |> String.replace("A", "E")
+      |> String.replace("K", "D")
+      |> String.replace("Q", "C")
+      |> String.replace("J", "B")
+      |> String.replace("T", "A")
     end)
   end
 
@@ -72,7 +73,7 @@ defmodule Day7.PartOne do
         @four_kind
 
       [5] ->
-        @five_find
+        @five_kind
     end
   end
 end
