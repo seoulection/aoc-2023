@@ -14,13 +14,13 @@ defmodule Day5.PartTwo do
   def run(input) do
     [seeds, _ | tail] = Helpers.parse(input)
 
-    seeds =
+    _seeds =
       seeds
       |> parse_seeds()
       |> Enum.chunk_every(2)
       |> Enum.map(fn [first, last] -> first..(first + last - 1) end)
 
-    almanac =
+    _almanac =
       create_almanac(tail)
       |> IO.inspect()
 
