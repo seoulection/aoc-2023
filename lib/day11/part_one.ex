@@ -59,7 +59,6 @@ defmodule Day11.PartOne do
   defp do_create_map({[_head | tail], index}, map_key_tuple, inner_index),
     do: do_create_map({tail, index}, map_key_tuple, inner_index + 1)
 
-  # defp make_inner_map(map, key, point), do: Map.put(map, key, %{point: point, visited: []})
   defp make_inner_map(map, key, point), do: Map.put(map, key, point)
 
   defp expand_horizontal(list) do
