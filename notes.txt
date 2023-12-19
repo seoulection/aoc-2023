@@ -1,0 +1,6 @@
+Day 10:
+- Pick's Theorem
+- Shoelace formula
+
+Day 11:
+- Manhattan distance formula
