@@ -22,4 +22,18 @@ defmodule Day13Test do
              """
              |> Day13.PartOne.run()
   end
+
+  test "part 2 passes" do
+    assert 400 =
+             """
+             #.##..##.
+             ..#.##.#.
+             ##......#
+             ##......#
+             ..#.##.#.
+             ..##..##.
+             #.#.##.#.
+             """
+             |> Day13.PartTwo.run()
+  end
 end
