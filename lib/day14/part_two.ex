@@ -31,9 +31,9 @@ defmodule Day14.PartTwo do
 
   defp do_run_cycle(list, :north) do
     list
-    |> transpose()
+    |> Helpers.transpose()
     |> Enum.map(&tilt/1)
-    |> transpose()
+    |> Helpers.transpose()
   end
 
   defp do_run_cycle(list, :west), do: Enum.map(list, &tilt/1)
@@ -41,9 +41,9 @@ defmodule Day14.PartTwo do
   defp do_run_cycle(list, :south) do
     list
     |> Enum.reverse()
-    |> transpose()
+    |> Helpers.transpose()
     |> Enum.map(&tilt/1)
-    |> transpose()
+    |> Helpers.transpose()
     |> Enum.reverse()
   end
 
@@ -87,10 +87,4 @@ defmodule Day14.PartTwo do
 
   defp construct_list(list, round_count, length) when round_count > 0,
     do: construct_list([@round | list], round_count - 1, length - 1)
-
-  defp transpose(list) do
-    list
-    |> Enum.zip()
-    |> Enum.map(&Tuple.to_list/1)
-  end
 end

@@ -7,9 +7,9 @@ defmodule Day14.PartOne do
     input
     |> Helpers.parse()
     |> Enum.map(&String.split(&1, "", trim: true))
-    |> transpose()
+    |> Helpers.transpose()
     |> Enum.map(&tilt/1)
-    |> transpose()
+    |> Helpers.transpose()
     |> Enum.reverse()
     |> Enum.with_index(fn element, index -> {element, index + 1} end)
     |> Enum.reduce(0, fn {element, index}, acc ->
@@ -53,10 +53,4 @@ defmodule Day14.PartOne do
 
   defp construct_list(list, round_count, length) when round_count > 0,
     do: construct_list([@round | list], round_count - 1, length - 1)
-
-  defp transpose(list) do
-    list
-    |> Enum.zip()
-    |> Enum.map(&Tuple.to_list/1)
-  end
 end

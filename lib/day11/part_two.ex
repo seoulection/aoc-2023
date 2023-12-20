@@ -109,7 +109,7 @@ defmodule Day11.PartTwo do
   defp expand_vertical(list) do
     list
     |> Enum.map(&String.split(&1, "", trim: true))
-    |> transpose()
+    |> Helpers.transpose()
     |> Enum.reduce([], fn str_list, acc ->
       if Enum.all?(str_list, &(&1 == ".")) do
         [str_list, str_list | acc]
@@ -118,13 +118,7 @@ defmodule Day11.PartTwo do
       end
     end)
     |> Enum.reverse()
-    |> transpose()
-  end
-
-  defp transpose(list) do
-    list
-    |> List.zip()
-    |> Enum.map(&Tuple.to_list/1)
+    |> Helpers.transpose()
   end
 
   defp manhattan_distance({x1, y1}, {x2, y2}),
