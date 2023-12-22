@@ -15,6 +15,8 @@ defmodule Day13.PartTwo do
       horizontal1 =
         find_reflection(grid_with_index, grid_with_index)
 
+      IO.inspect(grid, label: "GRID")
+
       vertical_grid =
         grid
         |> Helpers.transpose()
@@ -22,6 +24,11 @@ defmodule Day13.PartTwo do
 
       vertical1 =
         find_reflection(vertical_grid, vertical_grid)
+
+      IO.inspect(horizontal1, label: "HORIZONTAL")
+
+      vertical1 = if horizontal1 == 0, do: vertical1, else: 0
+      IO.inspect(vertical1, label: "VERTICAL")
 
       [horizontal: horizontal + horizontal1, vertical: vertical + vertical1]
     end)
@@ -38,23 +45,56 @@ defmodule Day13.PartTwo do
         0
 
       {tail_list, _tail_index} ->
-        if head_list == tail_list do
-          {first, second} = Enum.split(grid, head_index)
+        cond do
+          head_list == tail_list ->
+            {first, second} = Enum.split(grid, head_index)
 
-          value = find_reflection(first, second, head_index)
+            first
+            |> find_reflection(second, head_index, smudge?: false)
+            |> case do
+              0 ->
+                find_reflection(tail, grid)
 
-          if value == 0 do
-            find_reflection(tail, grid)
-          else
-            value
-          end
-        else
-          find_reflection(tail, grid)
+              value ->
+                value
+            end
+
+          true ->
+            h_ms = create_mapset(head_list)
+            t_ms = create_mapset(tail_list)
+
+            h_ms
+            |> MapSet.difference(t_ms)
+            |> MapSet.size()
+            |> case do
+              1 ->
+                # get first and second
+                {first, second} =
+                  grid
+                  |> Enum.split(head_index)
+                  |> then(fn {first, second} ->
+                    first = Enum.drop(first, -1)
+                    second = Enum.drop(second, 1)
+
+                    {first, second}
+                  end)
+
+                find_reflection(first, second, head_index, smudge?: true)
+
+              _ ->
+                find_reflection(tail, grid)
+            end
         end
     end
   end
 
-  defp find_reflection(first, second, head_index) do
+  defp create_mapset(list) do
+    list
+    |> Enum.with_index()
+    |> MapSet.new()
+  end
+
+  defp find_reflection(first, second, head_index, smudge?: true) do
     first = Enum.map(first, fn {list, _} -> list end)
     second = Enum.map(second, fn {list, _} -> list end)
     first_length = Enum.count(first)
@@ -68,9 +108,6 @@ defmodule Day13.PartTwo do
           first
           |> Enum.drop(diff)
           |> Enum.reverse()
-
-        IO.inspect(first_list, label: "FIRST LIST")
-        IO.inspect(second, label: "SECOND LIST")
 
         if first_list == second do
           head_index
@@ -90,6 +127,89 @@ defmodule Day13.PartTwo do
           head_index
         else
           0
+        end
+    end
+  end
+
+  defp find_reflection(first, second, head_index, smudge?: false) do
+    first = Enum.map(first, fn {list, _} -> list end)
+    second = Enum.map(second, fn {list, _} -> list end)
+    first_length = Enum.count(first)
+    second_length = Enum.count(second)
+
+    cond do
+      first_length > second_length ->
+        diff = first_length - second_length
+
+        first_list =
+          first
+          |> Enum.drop(diff)
+          |> Enum.reverse()
+
+        if first_list == second do
+          head_index
+        else
+          0..(second_length - 1)
+          |> Enum.reduce(0, fn index, acc ->
+            first_ms =
+              first_list
+              |> Enum.at(index)
+              |> create_mapset()
+
+            second_ms =
+              second
+              |> Enum.at(index)
+              |> create_mapset()
+
+            first_ms
+            |> MapSet.difference(second_ms)
+            |> MapSet.size()
+            |> Kernel.+(acc)
+          end)
+          |> case do
+            result when result > 1 ->
+              0
+
+            _ ->
+              head_index
+          end
+        end
+
+      first_length < second_length ->
+        diff = second_length - first_length
+
+        second_list =
+          second
+          |> Enum.reverse()
+          |> Enum.drop(diff)
+
+        if first == second_list do
+          head_index
+        else
+          0..(first_length - 1)
+          |> Enum.reduce(0, fn index, acc ->
+            first_ms =
+              first
+              |> Enum.at(index)
+              |> create_mapset()
+
+            second_ms =
+              second_list
+              |> Enum.at(index)
+              |> create_mapset()
+
+            first_ms
+            |> MapSet.difference(second_ms)
+            |> MapSet.size()
+            |> Kernel.+(acc)
+          end)
+          |> case do
+            result when result > 1 ->
+              0
+
+            _ ->
+              head_index
+          end
         end
     end
   end
