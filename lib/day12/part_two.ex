@@ -1,15 +1,17 @@
-defmodule Day12.PartOne do
+defmodule Day12.PartTwo do
   def run(input) do
     input
     |> Helpers.parse()
     |> Enum.map(fn str ->
       str
       |> String.split(" ")
-      |> parse_instructions()
+      |> parse()
     end)
-    |> Enum.reduce(0, fn {record, instructions}, acc ->
-      acc + scan(record, ".", instructions)
+    |> Task.async_stream(fn {record, instructions} ->
+      scan(record, ".", instructions)
     end)
+    |> Stream.map(&elem(&1, 1))
+    |> Enum.sum()
   end
 
   defp scan("", _, []), do: 1
@@ -28,10 +30,13 @@ defmodule Day12.PartOne do
   defp scan("?" <> rest, ".", []), do: scan(rest, ".", [])
   defp scan("?" <> rest, ".", [0 | tail]), do: scan(rest, ".", tail)
 
-  defp scan("?" <> rest, ".", [head | tail] = instructions),
-    do: scan(rest, "#", [head - 1 | tail]) + scan(rest, ".", instructions)
+  defp scan("?" <> rest, ".", [head | tail] = instructions) do
+    memoize({rest, instructions}, fn ->
+      scan(rest, "#", [head - 1 | tail]) + scan(rest, ".", instructions)
+    end)
+  end
 
-  defp parse_instructions([record, instructions]) do
+  defp parse([record, instructions]) do
     instructions
     |> String.split(",")
     |> Enum.map(fn str ->
@@ -39,6 +44,29 @@ defmodule Day12.PartOne do
 
       num
     end)
-    |> then(&{record, &1})
+    |> then(fn instructions ->
+      record =
+        record
+        |> String.split("", trim: true)
+        |> List.duplicate(5)
+        |> Enum.join("?")
+
+      instructions =
+        instructions
+        |> List.duplicate(5)
+        |> List.flatten()
+
+      {record, instructions}
+    end)
+  end
+
+  defp memoize(key, fun) do
+    case Process.get(key) do
+      nil ->
+        tap(fun.(), &Process.put(key, &1))
+
+      result ->
+        result
+    end
   end
 end
