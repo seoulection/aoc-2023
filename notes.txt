@@ -4,3 +4,6 @@ Day 10:
 
 Day 11:
 - Manhattan distance formula
+
+Day 23:
+- Graphs using :libgraph library
